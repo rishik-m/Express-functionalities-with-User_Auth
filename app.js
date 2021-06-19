@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 const Campground = require('./models/campground');
 const ejsMate = require('ejs-mate');
 const AppError = require('./utilities/AppError');
+const Review = require('./models/review');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -59,7 +60,7 @@ app.post('/campgrounds', async (req, res, next) => {
 
 app.get('/campgrounds/:id', async (req, res, next) => {
     try {
-        const campground = await Campground.findById(req.params.id)
+        const campground = await Campground.findById(req.params.id).populate('reviews');
         res.render('campgrounds/show', { campground });
     }
     catch(e) {
@@ -96,6 +97,20 @@ app.delete('/campgrounds/:id', async (req, res, next) => {
     }
     catch(e) {
         next(e);
+    }
+})
+
+app.post('/campgrounds/:id/reviews', async(req, res) => {
+    try {
+        const result = await Campground.findById(req.params.id);
+        const review = new Review(req.body.review);
+        result.reviews.push(review);
+        await review.save();
+        await result.save();
+        res.redirect('/campgrounds');
+    }
+    catch(e) {
+        console.log(e);
     }
 })
 
