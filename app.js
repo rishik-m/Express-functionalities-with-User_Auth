@@ -6,6 +6,8 @@ const ejsMate = require('ejs-mate');
 const AppError = require('./utilities/AppError');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
+const session = require('express-session');
+const { config } = require('process');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -32,6 +34,19 @@ app.use(methodOverride('_method'));
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
+
+const configSession = {
+    secret: 'mysecretkey',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now(),
+        httpOnly: true,
+        // maxAge: 
+    }
+}
+
+app.use(session(configSession));
 
 
 app.get('/', (req, res) => {
