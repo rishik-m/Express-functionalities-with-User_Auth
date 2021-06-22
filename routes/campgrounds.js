@@ -20,6 +20,7 @@ router.post('/', async (req, res, next) => {
     try {
         const campground = new Campground(req.body.campground);
         await campground.save();
+        req.flash('success', 'A new Campground is successfully created!!');
         res.redirect(`/campgrounds/${campground._id}`)
     }
     catch(e) {
@@ -62,6 +63,7 @@ router.delete('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         await Campground.findByIdAndDelete(id);
+        req.flash('success', 'Campground Deleted!!');
         res.redirect('/campgrounds');
     }
     catch(e) {

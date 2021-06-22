@@ -7,7 +7,7 @@ const AppError = require('./utilities/AppError');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
 const session = require('express-session');
-const { config } = require('process');
+const flash = require('connect-flash');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -22,19 +22,6 @@ db.once("open", () => {
 });
 
 const app = express();
-
-app.engine('ejs', ejsMate);
-
-
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'))
-
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method'));
-
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
-
 const configSession = {
     secret: 'mysecretkey',
     resave: false,
@@ -46,14 +33,29 @@ const configSession = {
     }
 }
 
+app.engine('ejs', ejsMate);
+
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'))
+
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(session(configSession));
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    next();
+})
+
+app.use('/campgrounds', campgrounds);
+app.use('/campgrounds/:id/reviews', reviews);
 
 
 app.get('/', (req, res) => {
     res.render('home')
 });
-
-
 
 app.all('*', (req, res, next) => {
     next(new AppError('Page not found', 404));
