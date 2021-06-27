@@ -53,8 +53,7 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use('/campgrounds', campgroundRoutes);
-app.use('/campgrounds/:id/reviews', reviewRoutes);
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -63,6 +62,8 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
 
 
 
