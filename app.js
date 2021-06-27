@@ -8,6 +8,10 @@ const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
+const { getMaxListeners } = require('./models/user');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -52,6 +56,13 @@ app.use((req, res, next) => {
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
 
 app.get('/', (req, res) => {
     res.render('home')
@@ -62,7 +73,7 @@ app.all('*', (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    const {status = 500, message = 'You got an error'} = err;
+    const { status = 500, message = 'You got an error' } = err;
     res.status(status).render('error');
 })
 
