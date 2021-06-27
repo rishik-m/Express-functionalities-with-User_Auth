@@ -7,8 +7,17 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    res.send(req.body);
-})
+    try {
+        const { email, username, password } = req.body;
+        const user = new User({ email, username });
+        const registerUser = await User.register(user, password);
+        req.flash('success', "Welcome!!!!");
+    }
+    catch (e) {
+        req.flash('success', e.message);
+        res.redirect('register');
+    }
+});
 
 
 module.exports = router;
